@@ -31,17 +31,17 @@ import java.util.stream.Collectors;
  */
 public abstract class BaseRepository<T> {
 
-    Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    static ObjectMapper jsonMapper = new ObjectMapper();
+    private static ObjectMapper jsonMapper = new ObjectMapper();
 
     @Autowired
     @Qualifier("writeJdbcTemplate")
-    JdbcTemplate writeJdbcTemplate;
+    private JdbcTemplate writeJdbcTemplate;
 
     @Autowired
     @Qualifier("readJdbcTemplate")
-    JdbcTemplate readJdbcTemplate;
+    private JdbcTemplate readJdbcTemplate;
 
     public abstract String tableName();
     public abstract String[] columnNames();
@@ -69,8 +69,7 @@ public abstract class BaseRepository<T> {
             sql = selectWhereSql() + sql;
             logger.info("find.sql: " + sql + ", args: " + jsonMapper.writeValueAsString(args));
             return readJdbcTemplate.queryForObject(sql, args, new BaseRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-        } catch (JsonProcessingException e) {
+        } catch (EmptyResultDataAccessException | JsonProcessingException e) {
         }
         return null;
     }
@@ -93,7 +92,7 @@ public abstract class BaseRepository<T> {
         return where("", new Object[]{});
     }
 
-    public long count(String sql, Object[] args) {
+    private long count(String sql, Object[] args) {
         return readJdbcTemplate.queryForObject(
                 "select count(1) from " + tableName() + " where " + sql, args, Long.class);
     }
@@ -151,8 +150,7 @@ public abstract class BaseRepository<T> {
         String[] columnNames = columnNames();
         List<Object> values = new ArrayList<>();
         List<String> keys = new ArrayList<>();
-        for (int i = 0; i < columnNames.length; i++) {
-            String columnName = columnNames[i];
+        for (String columnName : columnNames) {
             if (columnName.equals(createdAtName())) continue;
 
             String fieldName = changeColumnToFieldName(columnName);
@@ -165,10 +163,10 @@ public abstract class BaseRepository<T> {
             }
 
         }
-        update(keys.toArray(new String[keys.size()]), values.toArray(new Object[values.size()]), id);
+        update(keys.toArray(new String[0]), values.toArray(new Object[0]), id);
     }
 
-    public long insert(List<String> columns, List<Object> args, int[] types) {
+    private long insert(List<String> columns, List<Object> args, int[] types) {
         String insertColumns = primaryKeyName();
         String insertPlaceholders = "nextval('"+tableName()+"_id_seq')";
         for (String column : columns) {
@@ -194,13 +192,14 @@ public abstract class BaseRepository<T> {
             e.printStackTrace();
         }
         writeJdbcTemplate.update(pscf.newPreparedStatementCreator(args), keyHolder);
-        if (keyHolder.getKeyList() != null && !keyHolder.getKeyList().isEmpty()) {
+        keyHolder.getKeyList();
+        if (!keyHolder.getKeyList().isEmpty()) {
             return (long) keyHolder.getKeyList().get(0).get(primaryKeyName());
         }
         return -1;
     }
 
-    public void update(String[] columns, Object[] args, long id) {
+    private void update(String[] columns, Object[] args, long id) {
         if (columns == null || columns.length <= 0) return;
 
         String sql = "update " + tableName() + " set ";

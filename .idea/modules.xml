@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/api/api.iml" filepath="$PROJECT_DIR$/api/api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/fish-admin.iml" filepath="$PROJECT_DIR$/.idea/fish-admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/api/fish-admin (1) (com.suou).iml" filepath="$PROJECT_DIR$/api/fish-admin (1) (com.suou).iml" />
+    </modules>
+  </component>
+</project>
